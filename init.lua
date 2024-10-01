@@ -52,6 +52,7 @@ vim.keymap.set("n", "<LEADER>v", "<CMD>!./script/clean.bat<CR>")
 vim.keymap.set("n", "<LEADER>b", "<CMD>!./script/build.bat<CR>")
 vim.keymap.set("n", "<LEADER>n", "<CMD>!./script/run.bat<CR>")
 vim.keymap.set("n", "<LEADER>m", "<CMD>!./script/debug.bat<CR>")
+-- REMAP
 
 -- SET
 vim.g.netrw_banner = 0
@@ -92,6 +93,7 @@ vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 300
 
 vim.api.nvim_create_autocmd("VimResized", { command = "wincmd =" })
+-- SET
 
 -- COLORS
 vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"},
@@ -106,8 +108,9 @@ vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"},
     '%#LineNr0#%{(v:relnum == 0)?v:lnum.\"' .. separator .. '\":\"\"}'
   end
 })
+-- COLORS
 
--- C
+-- C/C++
 local function assign_files(long_files, cwd)
   local files = {}
   for _, file in ipairs(long_files) do
@@ -253,3 +256,4 @@ function switch_file_in_cxx_unit(dir)
 end
 vim.keymap.set("n", "<LEADER>pu", function() switch_file_in_cxx_unit(vim.fn.getcwd() .. "/program") end)
                        -- Folder to recursively search for files in the compilation unit ^^^
+-- C/C++

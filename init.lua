@@ -48,10 +48,10 @@ vim.keymap.set("n", "<LEADER>qw", "\"+yiw:silent grep <C-r><C-w> program<CR><CMD
 vim.keymap.set("n", "<LEADER>qW", "\"+yiw:silent grep <C-r><C-a> program<CR><CMD>copen<CR>")
 vim.keymap.set("v", "<LEADER>q", "\"+ygv\"hy:silent grep <C-r>h program<CR><CMD>copen<CR>")
 
-vim.keymap.set("n", "<LEADER>v", "<CMD>!./script/clean.bat<CR>")
-vim.keymap.set("n", "<LEADER>b", "<CMD>!./script/build.bat<CR>")
-vim.keymap.set("n", "<LEADER>n", "<CMD>!./script/run.bat<CR>")
-vim.keymap.set("n", "<LEADER>m", "<CMD>!./script/debug.bat<CR>")
+vim.keymap.set("n", "<LEADER>v", "<CMD>!./script/clean.sh<CR>")
+vim.keymap.set("n", "<LEADER>b", "<CMD>!./script/build.sh<CR>")
+vim.keymap.set("n", "<LEADER>n", "<CMD>!./script/run.sh<CR>")
+vim.keymap.set("n", "<LEADER>m", "<CMD>!./script/debug.sh<CR>")
 -- REMAP
 
 -- SET
@@ -94,21 +94,6 @@ vim.opt.updatetime = 300
 
 vim.api.nvim_create_autocmd("VimResized", { command = "wincmd =" })
 -- SET
-
--- COLORS
-vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"},
-{
-  callback = function()
-    local separator = " ▎ "
-    vim.opt.statuscolumn =
-    '%s%=%#LineNr4#%{(v:relnum >= 4)?v:relnum.\"' .. separator .. '\":\"\"}' ..
-    '%#LineNr3#%{(v:relnum == 3)?v:relnum.\"' .. separator .. '\":\"\"}' ..
-    '%#LineNr2#%{(v:relnum == 2)?v:relnum.\"' .. separator .. '\":\"\"}' ..
-    '%#LineNr1#%{(v:relnum == 1)?v:relnum.\"' .. separator .. '\":\"\"}' ..
-    '%#LineNr0#%{(v:relnum == 0)?v:lnum.\"' .. separator .. '\":\"\"}'
-  end
-})
--- COLORS
 
 -- C/C++
 local function assign_files(long_files, cwd)

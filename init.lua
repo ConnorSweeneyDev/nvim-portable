@@ -155,7 +155,7 @@ function switch_file_in_cc_unit(dir)
     vim.notify("There is only one file in this compilation unit!", "error")
 
   elseif #files == 2 then
-    local source, header = assign_file_types(files)
+    local source, header = assign_cc_file_types(files)
     local other_file = ""
 
     if string.match(vim.fn.expand("%:e"), "c") then

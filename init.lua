@@ -139,7 +139,7 @@ end
 
 function switch_file_in_cc_unit(dir)
   if not string.match(vim.fn.expand("%:e"), "c") and not string.match(vim.fn.expand("%:e"), "h") then
-    vim.notify("Not a source or header file!", "error")
+    vim.notify("Not a C source or header file!", "error")
     return
   end
 
@@ -203,7 +203,7 @@ end
 
 function switch_file_in_cxx_unit(dir)
   if not string.match(vim.fn.expand("%:e"), "cpp") and not string.match(vim.fn.expand("%:e"), "hpp") and not string.match(vim.fn.expand("%:e"), "inl") then
-    vim.notify("Not a source, header or inline file!", "error")
+    vim.notify("Not a C++ source, header or inline file!", "error")
     return
   end
 

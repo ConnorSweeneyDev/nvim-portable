@@ -87,7 +87,7 @@ vim.opt.incsearch = true
 vim.opt.grepprg = "rg --vimgrep"
 vim.opt.grepformat = "%f:%l:%c:%m"
 
-vim.opt.termguicolors = false
+vim.opt.termguicolors = true
 
 vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 300

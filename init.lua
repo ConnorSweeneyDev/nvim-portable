@@ -172,8 +172,8 @@ function switch_file_in_cc_unit(dir)
     vim.notify("Unexpectedly high amount of corresponding files found!", "error")
   end
 end
-vim.keymap.set("n", "<LEADER>pU", function() switch_file_in_unit(vim.fn.getcwd() .. "/program") end)
-                    -- Folder to recursively search for files in the compilation unit ^^^
+vim.keymap.set("n", "<LEADER>pU", function() switch_file_in_cc_unit(vim.fn.getcwd() .. "/program") end)
+                      -- Folder to recursively search for files in the compilation unit ^^^
 
 local function find_one_from_two(file1, file2)
   if file1 ~= "" then

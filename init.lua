@@ -41,12 +41,12 @@ vim.keymap.set("v", "<C-s>", ":s//g<Left><Left>")
 vim.keymap.set("v", "<C-n>", ":normal ")
 
 -- Will specifically search in files in the program directory
-vim.keymap.set("n", "<LEADER>qg", ":silent grep  program<C-Left><Left>")
+vim.keymap.set("n", "<LEADER>qg", ":silent grep  program/*/*<C-Left><Left>")
 vim.keymap.set("n", "<LEADER>qo", "<CMD>copen<CR>")
 vim.keymap.set("n", "<LEADER>qr", ":cdo s//g<Left><Left>")
-vim.keymap.set("n", "<LEADER>qw", "\"+yiw:silent grep <C-r><C-w> program<CR><CMD>copen<CR>")
-vim.keymap.set("n", "<LEADER>qW", "\"+yiw:silent grep <C-r><C-a> program<CR><CMD>copen<CR>")
-vim.keymap.set("v", "<LEADER>q", "\"+ygv\"hy:silent grep <C-r>h program<CR><CMD>copen<CR>")
+vim.keymap.set("n", "<LEADER>qw", "\"+yiw:silent grep <C-r><C-w> program/*/*<CR><CMD>copen<CR>")
+vim.keymap.set("n", "<LEADER>qW", "\"+yiw:silent grep <C-r><C-a> program/*/*<CR><CMD>copen<CR>")
+vim.keymap.set("v", "<LEADER>q", "\"+ygv\"hy:silent grep <C-r>h program/*/*<CR><CMD>copen<CR>")
 
 vim.keymap.set("n", "<LEADER>v", "<CMD>!./script/clean.sh<CR>")
 vim.keymap.set("n", "<LEADER>b", "<CMD>!./script/build.sh<CR>")
@@ -84,8 +84,6 @@ vim.opt.writebackup = false
 vim.opt.ignorecase = false
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
-vim.opt.grepprg = "rg --vimgrep"
-vim.opt.grepformat = "%f:%l:%c:%m"
 
 vim.opt.termguicolors = true
 

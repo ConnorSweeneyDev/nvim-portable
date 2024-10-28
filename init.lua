@@ -75,7 +75,7 @@ opt.smartindent = true
 
 opt.wrap = false
 opt.linebreak = true
-opt.scrolloff = 8
+opt.scrolloff = 1000
 opt.textwidth = 100
 opt.formatoptions:remove("t")
 opt.formatoptions:remove("c")

@@ -18,12 +18,6 @@ map("v", "J", ":m '>+1<CR>gv=gv")
 map("v", "K", ":m '<-2<CR>gv=gv")
 map({"n", "v"}, "j", "gj")
 map({"n", "v"}, "k", "gk")
-map("n", "<C-d>", "<C-d>zz")
-map("n", "<C-u>", "<C-u>zz")
-map("n", "n", "nzzzv")
-map("n", "N", "Nzzzv")
-map("n", "*", "*zzzv")
-map("n", "#", "#zzzv")
 map("n", "<A-h>", "<C-w>h")
 map("n", "<A-j>", "<C-w>j")
 map("n", "<A-k>", "<C-w>k")
@@ -188,13 +182,7 @@ cxx_util.switch_file_in_unit = function(dir)
       vim.notify("Unexpected file extension!", "error")
       return
     end
-    local extension_selection = {}
-    for _, file in ipairs(selection) do table.insert(extension_selection, string.match(file, "%.([^.]+)$")) end
-    local choice = vim.ui.select(extension_selection, {prompt = "Select file to edit:"})
-    if choice then
-      if choice == string.match(selection[1], "%.([^.]+)$") then vim.cmd("edit " .. selection[1])
-      else vim.cmd("edit " .. selection[2]) end
-    end
+    vim.ui.select(selection, {prompt = "Choose a file:"}, function(choice) if choice then vim.cmd("edit " .. choice) end end)
   else vim.notify("Unexpectedly high amount of corresponding files found!", "error") end
 end
 map("n", "<LEADER>pu", function() cxx_util.switch_file_in_unit(vim.fn.getcwd() .. "/program") end)

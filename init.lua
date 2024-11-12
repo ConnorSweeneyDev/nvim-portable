@@ -190,7 +190,7 @@ cxx_util.switch_file_in_unit = function(dir)
     end
     local extension_selection = {}
     for _, file in ipairs(selection) do table.insert(extension_selection, string.match(file, "%.([^.]+)$")) end
-    local choice = require("lacasitos").choose_option(extension_selection)
+    local choice = vim.ui.select(extension_selection, {prompt = "Select file to edit:"})
     if choice then
       if choice == string.match(selection[1], "%.([^.]+)$") then vim.cmd("edit " .. selection[1])
       else vim.cmd("edit " .. selection[2]) end

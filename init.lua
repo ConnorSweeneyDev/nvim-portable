@@ -5,7 +5,6 @@ g = vim.g
 
 ----------------------------------------------------------------------------------------------------
 
-g.mapleader = " "
 map("n", "<C-f>", "<nop>")
 map("i", "<C-c>", "<Esc>")
 map("n", "<LEADER>w", "<CMD>w<CR>")
@@ -46,6 +45,7 @@ map("n", "<LEADER>m", "<CMD>!./script/debug.sh<CR>")
 
 ----------------------------------------------------------------------------------------------------
 
+g.mapleader = " "
 g.netrw_banner = 0
 opt.nu = true
 opt.relativenumber = true
@@ -77,8 +77,8 @@ api.nvim_create_autocmd("VimResized", {command = "wincmd ="})
 
 ----------------------------------------------------------------------------------------------------
 
-cc_util = {}
-cc_util.assign_files = function(long_files, cwd)
+general_util = {}
+general_util.make_relative_files = function(long_files, cwd)
   local files = {}
   for _, file in ipairs(long_files) do
     local new_file = string.gsub(file, cwd .. "\\", "")
@@ -87,6 +87,16 @@ cc_util.assign_files = function(long_files, cwd)
   end
   return files
 end
+general_util.get_files_in_compilation_unit = function(directory)
+  local cwd = vim.fn.getcwd()
+  local name = vim.fn.expand("%:t:r")
+  local long_files = vim.fn.globpath(directory, "**/" .. name .. ".*", 0, 1)
+  local files = general_util.make_relative_files(long_files, cwd)
+  return files
+end
+
+----------------------------------------------------------------------------------------------------
+cc_util = {}
 cc_util.assign_file_types = function(files)
   local source = ""
   local header = ""
@@ -96,44 +106,37 @@ cc_util.assign_file_types = function(files)
   end
   return source, header
 end
-cc_util.switch_file_in_unit = function(dir)
-  local extension = vim.fn.expand("%:e")
-  if not string.match(extension, "c") and not string.match(extension, "h") then
-    vim.notify("Not a C source or header file!", "error")
+cc_util.switch_file_in_compilation_unit = function(directory, target_extension)
+  local directory = vim.fn.getcwd() .. directory
+  local current_extension = vim.fn.expand("%:e")
+  if not string.match(current_extension, "c") and not string.match(current_extension, "h") then
+    vim.notify("Not a c or h file!", "error")
     return
   end
-  local cwd = vim.fn.getcwd()
-  local name = vim.fn.expand("%:t:r")
-  local long_files = vim.fn.globpath(dir, "**/" .. name .. ".*", 0, 1)
-  local files = cc_util.assign_files(long_files, cwd)
+  local files = general_util.get_files_in_compilation_unit(directory)
+  if string.match(current_extension, target_extension) then
+    vim.notify("Already in " .. target_extension .. " file!", "error")
+    return
+  end
   if #files == 0 then vim.notify("Problem reading filename!", "error")
   elseif #files == 1 then vim.notify("There is only one file in this compilation unit!", "error")
   elseif #files == 2 then
-    local source, header = cc_util.assign_file_types(files)
-    local other_file = ""
-    if string.match(extension, "c") then other_file = header
-    elseif string.match(extension, "h") then other_file = source
-    else
-      vim.notify("Unexpected file extension!", "error")
-      return
-    end
-    vim.cmd("edit " .. other_file)
+    local source, header, inline = cc_util.assign_file_types(files)
+    if target_extension == "c" then
+      if source ~= "" then vim.cmd("edit " .. source)
+      else vim.notify("No c file found!", "error") end
+    elseif target_extension == "h" then
+      if header ~= "" then vim.cmd("edit " .. header)
+      else vim.notify("No h file found!", "error") end
+    else vim.notify("Unexpected target file extension!", "error") end
   else vim.notify("Unexpectedly high amount of corresponding files found!", "error") end
 end
-map("n", "<LEADER>pU", function() cc_util.switch_file_in_unit(vim.fn.getcwd() .. "/program") end)
+map("n", "<LEADER>Uc", function() cc_util.switch_file_in_compilation_unit("/program", "c") end)
+map("n", "<LEADER>Uh", function() cc_util.switch_file_in_compilation_unit("/program", "h") end)
 
 ----------------------------------------------------------------------------------------------------
 
 cxx_util = {}
-cxx_util.assign_files = function(long_files, cwd)
-  local files = {}
-  for _, file in ipairs(long_files) do
-    local new_file = string.gsub(file, cwd .. "\\", "")
-    new_file = string.gsub(new_file, "\\", "/")
-    table.insert(files, new_file)
-  end
-  return files
-end
 cxx_util.assign_file_types = function(files)
   local source = ""
   local header = ""
@@ -145,44 +148,37 @@ cxx_util.assign_file_types = function(files)
   end
   return source, header, inline
 end
-cxx_util.find_one_from_two = function(file1, file2)
-  if file1 ~= "" then return file1
-  elseif file2 ~= "" then return file2 end
-end
-cxx_util.switch_file_in_unit = function(dir)
-  local extension = vim.fn.expand("%:e")
-  if not string.match(extension, "cpp") and not string.match(extension, "hpp") and not string.match(extension, "inl") then
-    vim.notify("Not a C++ source, header or inline file!", "error")
+cxx_util.switch_file_in_compilation_unit = function(directory, target_extension)
+  local directory = vim.fn.getcwd() .. directory
+  local current_extension = vim.fn.expand("%:e")
+  if not string.match(current_extension, "cpp") and not string.match(current_extension, "hpp") and not string.match(current_extension, "inl") then
+    vim.notify("Not a cpp, hpp or inl file!", "error")
     return
   end
-  local cwd = vim.fn.getcwd()
-  local name = vim.fn.expand("%:t:r")
-  local long_files = vim.fn.globpath(dir, "**/" .. name .. ".*", 0, 1)
-  local files = cxx_util.assign_files(long_files, cwd)
+  local files = general_util.get_files_in_compilation_unit(directory)
+  if string.match(current_extension, target_extension) then
+    vim.notify("Already in " .. target_extension .. " file!", "error")
+    return
+  end
   if #files == 0 then vim.notify("Problem reading filename!", "error")
   elseif #files == 1 then vim.notify("There is only one file in this compilation unit!", "error")
-  elseif #files == 2 then
+  elseif #files == 2 or #files == 3 then
     local source, header, inline = cxx_util.assign_file_types(files)
-    local other_file = ""
-    if string.match(extension, "cpp") then other_file = cxx_util.find_one_from_two(header, inline)
-    elseif string.match(extension, "hpp") then other_file = cxx_util.find_one_from_two(source, inline)
-    elseif string.match(extension, "inl") then other_file = cxx_util.find_one_from_two(source, header)
+    if target_extension == "cpp" then
+      if source ~= "" then vim.cmd("edit " .. source)
+      else vim.notify("No cpp file found!", "error") end
+    elseif target_extension == "hpp" then
+      if header ~= "" then vim.cmd("edit " .. header)
+      else vim.notify("No hpp file found!", "error") end
+    elseif target_extension == "inl" then
+      if inline ~= "" then vim.cmd("edit " .. inline)
+      else vim.notify("No inl file found!", "error") end
     else
-      vim.notify("Unexpected file extension!", "error")
+      vim.notify("Unexpected target file extension!", "error")
       return
     end
-    vim.cmd("edit " .. other_file)
-  elseif #files == 3 then
-    local source, header, inline = cxx_util.assign_file_types(files)
-    local selection = {}
-    if string.match(extension, "cpp") then selection = {header, inline}
-    elseif string.match(extension, "hpp") then selection = {source, inline}
-    elseif string.match(extension, "inl") then selection = {source, header}
-    else
-      vim.notify("Unexpected file extension!", "error")
-      return
-    end
-    vim.ui.select(selection, {prompt = "Choose a file:"}, function(choice) if choice then vim.cmd("edit " .. choice) end end)
   else vim.notify("Unexpectedly high amount of corresponding files found!", "error") end
 end
-map("n", "<LEADER>pu", function() cxx_util.switch_file_in_unit(vim.fn.getcwd() .. "/program") end)
+map("n", "<LEADER>uc", function() cxx_util.switch_file_in_compilation_unit("/program", "cpp") end)
+map("n", "<LEADER>uh", function() cxx_util.switch_file_in_compilation_unit("/program", "hpp") end)
+map("n", "<LEADER>ui", function() cxx_util.switch_file_in_compilation_unit("/program", "inl") end)

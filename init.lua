@@ -80,31 +80,24 @@ api.nvim_create_autocmd({"CursorMoved", "BufEnter", "WinEnter"}, {command = "nor
 ----------------------------------------------------------------------------------------------------
 
 general_util = {}
-general_util.make_relative_files = function(long_files)
+general_util.make_relative_files = function(long_files, cwd)
   local files = {}
   for _, file in ipairs(long_files) do
-    local new_file = string.gsub(string.gsub(file, vim.fn.getcwd() .. "\\", ""), "\\", "/")
+    local new_file = string.gsub(file, cwd .. "\\", "")
+    new_file = string.gsub(new_file, "\\", "/")
     table.insert(files, new_file)
   end
   return files
-end
-general_util.find_target_directory = function()
-  local target_directory = string.gsub(vim.fn.expand("%"), vim.fn.getcwd() .. "\\", "")
-  target_directory = string.gsub(string.gsub(target_directory, "/", "\\"), "\\.*$", "")
-  if string.find(target_directory, "%.") then target_directory = "" end
-  return target_directory
 end
 
 ----------------------------------------------------------------------------------------------------
 
 c_util = {}
-c_util.get_files_in_compilation_unit = function()
-  local target_directory = general_util.find_target_directory()
-  if target_directory ~= "" then target_directory = "/" .. target_directory end
-  local directory = vim.fn.getcwd() .. target_directory
+c_util.get_files_in_compilation_unit = function(directory)
+  local cwd = vim.fn.getcwd()
   local name = vim.fn.expand("%:t:r")
   local long_files = vim.fn.globpath(directory, "**/" .. name .. ".*", 0, 1)
-  local files = general_util.make_relative_files(long_files)
+  local files = general_util.make_relative_files(long_files, cwd)
   return files
 end
 c_util.assign_cxx_file_types = function(files)
@@ -127,9 +120,10 @@ c_util.assign_cc_file_types = function(files)
   end
   return source, header
 end
-c_util.switch_file_in_compilation_unit = function(target_file)
+c_util.switch_file_in_compilation_unit = function(directory, target_file)
+  local directory = vim.fn.getcwd() .. directory
   local current_extension = vim.fn.expand("%:e")
-  local files = c_util.get_files_in_compilation_unit()
+  local files = c_util.get_files_in_compilation_unit(directory)
   if string.match(current_extension, "cpp") or string.match(current_extension, "hpp") or string.match(current_extension, "inl") then
     local target_extension = ""
     if target_file == "source" then target_extension = "cpp"
@@ -184,6 +178,6 @@ c_util.switch_file_in_compilation_unit = function(target_file)
     else vim.notify("Unexpectedly high amount of corresponding files found!", "error") end
   else vim.notify("Not a c, h, cpp, hpp or inl file!", "error") end
 end
-map("n", "UC", function() c_util.switch_file_in_compilation_unit("source") end)
-map("n", "UH", function() c_util.switch_file_in_compilation_unit("header") end)
-map("n", "UI", function() c_util.switch_file_in_compilation_unit("inline") end)
+map("n", "UC", function() c_util.switch_file_in_compilation_unit("/program", "source") end)
+map("n", "UH", function() c_util.switch_file_in_compilation_unit("/program", "header") end)
+map("n", "UI", function() c_util.switch_file_in_compilation_unit("/program", "inline") end)
